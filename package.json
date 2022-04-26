@@ -1,0 +1,29 @@
+{
+  "name": "noir.unity",
+  "version": "0.0.1-preview",
+  "displayName": "Noir.Unity",
+  "description": "Noir is a library full of practical code for your Unity game.",
+  "unity": "2019.4",
+  "dependencies": {
+  },
+  "changelogUrl": "https://github.com/troublecatstudios/noir-unity/blob/stable/CHANGELOG.md",
+  "documentationUrl": "https://docs.troublecat.io/",
+  "licensesUrl": "https://github.com/troublecatstudios/noir-unity/blob/stable/LICENSE.md",
+  "keywords": [
+    "Tools",
+    "Utilities"
+  ],
+  "author": {
+    "name": "TroubleCat Studios",
+    "url": "https://troublecat.io"
+  },
+  "hideInEditor": false,
+  "type": "tool",
+  "samples": [
+    {
+      "displayName": "Intro",
+      "description": "If you're new to Yarn Spinner, start with this demo. A simple conversation with branching, variables, and voice-over.",
+      "path": "Samples~/Intro"
+    },
+  ]
+}
