@@ -46,21 +46,34 @@ jobs:
         
       # Post status back
       # -----------------------------
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: FindComment
+        with:
+          issue-number: ${{ steps.PR.outputs.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Pull Request Lint Results
+
       - name: Post Comment (Passed)
         if: success()
-        uses: actions-ecosystem/action-create-comment@v1
+        uses: peter-evans/create-or-update-comment@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          number: ${{ steps.PR.outputs.number }}
+          comment-id: ${{ steps.FindComment.outputs.comment-id }}
+          issue-number: ${{ steps.PR.outputs.number }}
           body: |
+            ## Pull Request Lint Results
             :tada: This PR has been automatically checked and passes our linting, congrats!
+          edit-mode: replace
       - name: Post Comment (Failed)
         if: failure()
-        uses: actions-ecosystem/action-create-comment@v1
+        uses: peter-evans/create-or-update-comment@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          number: ${{ steps.PR.outputs.number }}
+          comment-id: ${{ steps.FindComment.outputs.comment-id }}
+          issue-number: ${{ steps.PR.outputs.number }}
           body: |
+            ## Pull Request Lint Results
             :grimacing: Oops, looks like this PR needs some changes before merging.
             ${{ steps.Validation.outputs.reasons }}
             ${{ steps.Validation.outputs.warnings }}
+          edit-mode: replace
+            
