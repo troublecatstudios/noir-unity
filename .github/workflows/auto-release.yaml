@@ -11,20 +11,20 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v3
     - uses: dudo/tag_check@v1.1.1
       id: tag_check
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         git_tag_prefix: v
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPOSITORY: ${{ github.repository }}
     - name: Build Changelog
       id: github_release
       uses: mikepenz/release-changelog-builder-action@v3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Commit Changelog
       run: |
         changelog="${{ steps.github_release.outputs.changelog }}"
@@ -39,5 +39,3 @@ jobs:
         tag_name: ${{ steps.tag_check.outputs.git_tag_name }}
         release_name: ${{ steps.tag_check.outputs.git_tag_name }}
         body: ${{steps.github_release.outputs.changelog}}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
