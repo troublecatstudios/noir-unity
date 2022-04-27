@@ -29,8 +29,8 @@ module.exports = async ({github, context, core, pr}) => {
     }
   }
   
-  core.setOutput('reasons', reasons.join('\n'));
-  core.setOutput('warnings', warnings.join('\n'));
+  core.setOutput('reasons', '### :no_entry: Lint Failures\n' + reasons.join('\n'));
+  core.setOutput('warnings', '### :warning: Lint Warnings \n' + warnings.join('\n'));
     
   if (reasons.length > 0) {
     core.setFailed('Pull request failed to pass validation.');
