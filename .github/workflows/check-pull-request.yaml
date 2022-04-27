@@ -29,8 +29,9 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            const pr = ${{ steps.PR.outputs.pr }};
             const script = require('./.github/scripts/check-pr.js');
-            await script({github, context, core})
+            await script({github, context, core, pr});
         
       # Post status back
       # -----------------------------
