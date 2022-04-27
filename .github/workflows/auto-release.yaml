@@ -5,8 +5,6 @@ on:
   push:
     branches:
     - stable
-    paths:
-    - 'package.json'
 
 jobs:
   release:
@@ -15,27 +13,60 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v3
-    - uses: dudo/tag_check@v1.1.1
-      id: tag_check
+    - uses: actions-ecosystem/action-get-merged-pull-request@v1
+      id: get-merged-pull-request
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions-ecosystem/action-release-label@v1
+      id: release-label
+      if: ${{ steps.get-merged-pull-request.outputs.title != null }}
+      with:
+        labels: ${{ steps.get-merged-pull-request.outputs.labels }}
+    - uses: actions-ecosystem/action-get-latest-tag@v1
+      id: get-latest-tag
+      if: ${{ steps.release-label.outputs.level != null }}
+      with:
+        semver_only: true
+    - uses: actions-ecosystem/action-bump-semver@v1
+      id: bump-semver
+      if: ${{ steps.release-label.outputs.level != null }}
+      with:
+        current_version: ${{ steps.get-latest-tag.outputs.tag }}
+        level: ${{ steps.release-label.outputs.level }}
+    - name: Prep
+      uses: actions/setup-node@v3.1.0
+      with:
+        node-version: '16'
+    - uses: actions-ecosystem/action-regex-match@v2
+      id: regex-match
+      if: ${{ steps.bump-semver.outputs.new_version != null }}
+      with:
+        text: ${{ steps.get-merged-pull-request.outputs.body }}
+        regex: '```release_note([\s\S]*)```'
+    - uses: actions-ecosystem/action-push-tag@v1
+      if: ${{ steps.bump-semver.outputs.new_version != null }}
+      with:
+        tag: ${{ steps.bump-semver.outputs.new_version }}
+        message: "${{ steps.bump-semver.outputs.new_version }}: PR #${{ steps.get-merged-pull-request.outputs.number }} ${{ steps.get-merged-pull-request.outputs.title }}"
+    - name: Update 'latest' tag
+      if: ${{ steps.bump-semver.outputs.new_version != null }}
+      run: |
+        git config user.name "${GITHUB_ACTOR}"
+        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        git tag -a "latest" -m "latest: PR #${{ steps.get-merged-pull-request.outputs.number }} ${{ steps.get-merged-pull-request.outputs.title }}"
+        git push --force origin "latest"
+    - uses: actions/create-release@v1
+      if: ${{ steps.bump-semver.outputs.new_version != null }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        git_tag_prefix: v
-        GITHUB_REPOSITORY: ${{ github.repository }}
-    - name: Build Changelog
-      id: github_release
-      uses: mikepenz/release-changelog-builder-action@v3
-    - name: Commit Changelog
-      run: |
-        changelog="${{ steps.github_release.outputs.changelog }}"
-        sed -i "s/<!--NEW_CHANGELOG-->/<!--NEW_CHANGELOG-->$changelog/" CHANGELOG.md
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add .
-        { git commit -m "${{ steps.tag_check.outputs.git_tag_name }} CHANGELOG" && git push || true
-    - name: Create Release
-      uses: actions/create-release@v1
+        tag_name: ${{ steps.bump-semver.outputs.new_version }}
+        release_name: ${{ steps.bump-semver.outputs.new_version }}
+        body: ${{ steps.regex-match.outputs.group1 }}
+    - uses: actions-ecosystem/action-create-comment@v1
+      if: ${{ steps.bump-semver.outputs.new_version != null }}
       with:
-        tag_name: ${{ steps.tag_check.outputs.git_tag_name }}
-        release_name: ${{ steps.tag_check.outputs.git_tag_name }}
-        body: ${{steps.github_release.outputs.changelog}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        number: ${{ steps.get-merged-pull-request.outputs.number }}
+        body: |
+          The new version [${{ steps.bump-semver.outputs.new_version }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.bump-semver.outputs.new_version }}) has been released
