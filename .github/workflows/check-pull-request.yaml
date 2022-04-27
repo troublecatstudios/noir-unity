@@ -1,0 +1,53 @@
+name: Check Pull Request
+
+on:
+  pull_request:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Retrieve the current PR number and body
+      # -----------------------------
+      - uses: 8BitJonny/gh-get-current-pr@2.0.0
+        id: PR
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Verbose setting SHA when using Pull_Request event trigger to fix #16
+          sha: ${{ github.event.pull_request.head.sha }}
+          # Only return if PR is still open
+          filterOutClosed: true
+          # Only return if PR is not in draft state
+          filterOutDraft: 1
+      
+      # Validate PR
+      # -----------------------------
+      - uses: actions/checkout@v2
+      - name: Validate Pull Request
+        id: Validation
+        if: success() && steps.PR.outputs.number
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const script = require('./.github/scripts/check-pr.js');
+            await script({github, context, core})
+        
+      # Post status back
+      # -----------------------------
+      - name: Post Comment (Passed)
+        if: success()
+        uses: actions-ecosystem/action-create-comment@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ steps.PR.outputs.number }}
+          body: |
+            :tada: This PR has been automatically checked and passes our linting, congrats!
+      - name: Post Comment (Failed)
+        if: failure()
+        uses: actions-ecosystem/action-create-comment@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ steps.PR.outputs.number }}
+          body: |
+            :grimacing: Oops, looks like this PR needs some changes before merging.
+            ${{ steps.Validation.outputs.reasons }}
