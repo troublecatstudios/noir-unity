@@ -52,3 +52,4 @@ jobs:
           body: |
             :grimacing: Oops, looks like this PR needs some changes before merging.
             ${{ steps.Validation.outputs.reasons }}
+            ${{ steps.Validation.outputs.warnings }}
