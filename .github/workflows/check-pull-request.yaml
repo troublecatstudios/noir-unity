@@ -62,7 +62,8 @@ jobs:
           issue-number: ${{ steps.PR.outputs.number }}
           body: |
             ## Pull Request Lint Results
-            :tada: This PR has been automatically checked and passes our linting, congrats!
+            :tada: This PR has been automatically checked and passes our linting, congrats! If any warnings were noticed they'll be included below.
+            ${{ steps.Validation.outputs.warnings }}
           edit-mode: replace
       - name: Post Comment (Failed)
         if: failure()
