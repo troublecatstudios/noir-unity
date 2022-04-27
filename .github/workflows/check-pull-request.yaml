@@ -31,6 +31,15 @@ jobs:
           # Only return if PR is not in draft state
           filterOutDraft: 1
       
+      # Find any previous bot comments so we can update them
+      # -----------------------------
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: FindComment
+        with:
+          issue-number: ${{ steps.PR.outputs.number }}
+          body-includes: Pull Request Lint Results
+      
       # Validate PR
       # -----------------------------
       - uses: actions/checkout@v2
@@ -46,14 +55,6 @@ jobs:
         
       # Post status back
       # -----------------------------
-      - name: Find Comment
-        uses: peter-evans/find-comment@v2
-        id: FindComment
-        with:
-          issue-number: ${{ steps.PR.outputs.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: Pull Request Lint Results
-
       - name: Post Comment (Passed)
         if: success()
         uses: peter-evans/create-or-update-comment@v2
@@ -65,6 +66,8 @@ jobs:
             :tada: This PR has been automatically checked and passes our linting, congrats! If any warnings were noticed they'll be included below.
             ${{ steps.Validation.outputs.warnings }}
           edit-mode: replace
+          reactions: hooray
+      
       - name: Post Comment (Failed)
         if: failure()
         uses: peter-evans/create-or-update-comment@v2
