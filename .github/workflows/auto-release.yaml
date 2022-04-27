@@ -5,11 +5,11 @@ on:
   push:
     branches:
     - stable
-	paths:
-	- 'package.json'
+    paths:
+    - 'package.json'
 
-job:
-  changelog:
+jobs:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,24 +18,24 @@ job:
       id: tag_check
       with:
         git_tag_prefix: v
-	  - name: Build Changelog
+    - name: Build Changelog
       id: github_release
       uses: mikepenz/release-changelog-builder-action@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Commit Changelog
       run: |
-	      changelog="${{ steps.github_release.outputs.changelog }}"
-	      sed -i "s/<!--NEW_CHANGELOG-->/$changelog/" CHANGELOG.md
+        changelog="${{ steps.github_release.outputs.changelog }}"
+        sed -i "s/<!--NEW_CHANGELOG-->/<!--NEW_CHANGELOG-->$changelog/" CHANGELOG.md
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add .
         { git commit -m "${{ steps.tag_check.outputs.git_tag_name }} CHANGELOG" && git push || true
-	  - name: Create Release
-	    uses: actions/create-release@v1
-	    with:
-	      tag_name: ${{ steps.tag_check.outputs.git_tag_name }}
-	      release_name: ${{ steps.tag_check.outputs.git_tag_name }}
-	      body: ${{steps.github_release.outputs.changelog}}
-	    env:
-	      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create Release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ steps.tag_check.outputs.git_tag_name }}
+        release_name: ${{ steps.tag_check.outputs.git_tag_name }}
+        body: ${{steps.github_release.outputs.changelog}}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
