@@ -48,13 +48,6 @@ jobs:
       with:
         tag: ${{ steps.bump-semver.outputs.new_version }}
         message: "${{ steps.bump-semver.outputs.new_version }}: PR #${{ steps.get-merged-pull-request.outputs.number }} ${{ steps.get-merged-pull-request.outputs.title }}"
-    - name: Update 'latest' tag
-      if: ${{ steps.bump-semver.outputs.new_version != null }}
-      run: |
-        git config user.name "${GITHUB_ACTOR}"
-        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-        git tag -a "latest" -m "latest: PR #${{ steps.get-merged-pull-request.outputs.number }} ${{ steps.get-merged-pull-request.outputs.title }}"
-        git push --force origin "latest"
     - uses: actions/create-release@v1
       if: ${{ steps.bump-semver.outputs.new_version != null }}
       env:
