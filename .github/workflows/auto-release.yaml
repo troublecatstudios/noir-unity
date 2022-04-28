@@ -56,7 +56,7 @@ jobs:
           const { owner, repo } = context.repo
           console.log('Cancelling ...');
           const run_id = "${{ github.run_id }}";
-          await github.actions.cancelWorkflowRun({ owner, repo, run_id });
+          await github.rest.actions.cancelWorkflowRun({ owner, repo, run_id });
           return 'stop'
         result-encoding: string
     - name: Waiting for cancellation
