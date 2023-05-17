@@ -1,4 +1,10 @@
-# This is the **HOMEPAGE**.
-Refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to write markdown files.
-## Quick Start Notes:
-1. Add images to the *images* folder if the file is referencing an image.
+# Noir.Unity Library
+Noir.Unity is our helper library for unity-based games.
+
+## Installation
+
+Noir.Unity can [be installed as a unity package](https://docs.unity3d.com/Manual/upm-ui-giturl.html) using this url:
+
+```
+https://github.com/troublecatstudios/noir-unity.git?path=/Noir.Unity/Assets/TroubleCatStudios/Noir.Unity#v1.0.0
+```
