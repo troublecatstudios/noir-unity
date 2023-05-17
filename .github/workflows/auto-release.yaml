@@ -86,7 +86,7 @@ jobs:
     - name: Bump package.json version
       run: |
         cd ${PACKAGEJSON_LOCATION}
-        npm --no-git-tag-version version ${{ steps.bump-semver.outputs.new_version }}
+        npm --no-git-tag-version --allow-same-version version ${{ steps.bump-semver.outputs.new_version }}
 
     # Extract the release notes from the PR body
     # -----------------------------
