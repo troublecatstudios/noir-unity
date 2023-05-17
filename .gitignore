@@ -25,6 +25,8 @@ Log.txt
 /Noir.Unity/Assets/InitTestScene*.unity.meta
 .data/
 
+Samples/
+
 #
 # Unity .gitignore
 #########################################
