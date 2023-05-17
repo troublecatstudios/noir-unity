@@ -5,9 +5,10 @@
         {
           "files": [
             "Noir.Unity.csproj",
-            "NoirUnityEditor.csproj"
+            "Noir.UnityEditor.csproj",
+            "Noir.UnityEditor.Modifications.csproj"
           ],
-          "src": "../"
+          "src": "../Noir.Unity/"
         }
       ],
       "dest": "api",
